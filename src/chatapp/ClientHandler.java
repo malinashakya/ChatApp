@@ -11,7 +11,7 @@ package chatapp;
 import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.List;
 
 public class ClientHandler implements Runnable {
     private Socket socket;

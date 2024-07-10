@@ -8,15 +8,17 @@ package chatapp;
  *
  * @author malin
  */
+
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.concurrent.*;
 
 public class Server {
     private static final int PORT = 12345;
     private static final Map<String, User> users = new HashMap<>();
     private static final List<String> chatHistory = new ArrayList<>();
-    private static final List<ClientHandler> clients = new ArrayList<>();
+    private static final Set<ClientHandler> clients = ConcurrentHashMap.newKeySet();
 
     static {
         users.put("user1", new User("user1", "password1"));
@@ -44,9 +46,7 @@ public class Server {
 
     public static synchronized void addMessage(String message) {
         chatHistory.add(message);
-        for (ClientHandler client : clients) {
-            client.sendMessage(message);
-        }
+        broadcastMessage(message);
     }
 
     public static synchronized List<String> getChatHistory() {
@@ -55,5 +55,11 @@ public class Server {
 
     public static synchronized void removeClient(ClientHandler clientHandler) {
         clients.remove(clientHandler);
+    }
+
+    private static void broadcastMessage(String message) {
+        for (ClientHandler client : clients) {
+            client.sendMessage(message);
+        }
     }
 }

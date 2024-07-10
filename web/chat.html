@@ -7,31 +7,42 @@
             let response = await fetch('/chat-history');
             let messages = await response.json();
             let chatArea = document.getElementById('chatArea');
-            chatArea.innerHTML = messages.join('<br>');
+            chatArea.innerHTML = '';
+            messages.forEach(msg => {
+                let messageElement = document.createElement('div');
+                messageElement.innerText = msg;
+                chatArea.appendChild(messageElement);
+            });
         }
 
-        async function sendMessage() {
-            let message = document.getElementById('messageInput').value;
+        async function sendMessage(event) {
+            event.preventDefault();
+            let message = document.getElementById('message').value;
             let response = await fetch('/chat', {
                 method: 'POST',
-                body: new URLSearchParams({ message: message })
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'message=' + encodeURIComponent(message)
             });
             if (response.ok) {
-                document.getElementById('messageInput').value = '';
                 loadChatHistory();
+                document.getElementById('message').value = '';
             }
         }
 
         window.onload = function() {
             loadChatHistory();
-            setInterval(loadChatHistory, 3000); // Refresh chat every 3 seconds
-        };
+        }
     </script>
 </head>
 <body>
     <h2>Chat</h2>
-    <div id="chatArea" style="border:1px solid #000; height:300px; overflow:auto;"></div>
-    <input type="text" id="messageInput">
-    <button onclick="sendMessage()">Send</button>
+    <div id="chatArea" style="border: 1px solid #000; height: 300px; overflow-y: scroll;"></div>
+    <form onsubmit="sendMessage(event)">
+        <input type="text" id="message" required>
+        <input type="submit" value="Send">
+    </form>
+    <a href="/login.html">Logout</a>
 </body>
 </html>
