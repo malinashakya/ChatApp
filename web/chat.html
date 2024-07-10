@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat</title>
+    <script>
+        async function loadChatHistory() {
+            let response = await fetch('/chat-history');
+            let messages = await response.json();
+            let chatArea = document.getElementById('chatArea');
+            chatArea.innerHTML = messages.join('<br>');
+        }
+
+        async function sendMessage() {
+            let message = document.getElementById('messageInput').value;
+            let response = await fetch('/chat', {
+                method: 'POST',
+                body: new URLSearchParams({ message: message })
+            });
+            if (response.ok) {
+                document.getElementById('messageInput').value = '';
+                loadChatHistory();
+            }
+        }
+
+        window.onload = function() {
+            loadChatHistory();
+            setInterval(loadChatHistory, 3000); // Refresh chat every 3 seconds
+        };
+    </script>
+</head>
+<body>
+    <h2>Chat</h2>
+    <div id="chatArea" style="border:1px solid #000; height:300px; overflow:auto;"></div>
+    <input type="text" id="messageInput">
+    <button onclick="sendMessage()">Send</button>
+</body>
+</html>
